@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Asesmen Informatika - SMK Negeri 1 Lintau Buo</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
+body {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  padding: 20px;
+  color: #333;
+}
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  overflow: hidden;
+}
+.header {
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  color: #fff;
+  padding: 25px 30px;
+  text-align: center;
+}
+.header h1 { font-size: 1.5rem; margin-bottom: 5px; }
+.header p { font-size: 0.9rem; opacity: 0.9; }
+.info-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 30px;
+  background: #f8f9fa;
+  border-bottom: 2px solid #e9ecef;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.timer {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #dc3545;
+  background: #fff;
+  padding: 8px 16px;
+  border-radius: 25px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.progress-info { font-size: 0.95rem; color: #495057; font-weight: 600; }
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  background: #e9ecef;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #28a745, #20c997);
+  transition: width 0.4s ease;
+}
+.content { padding: 30px; }
+.question-card {
+  background: #fff;
+  border: 2px solid #e9ecef;
+  border-radius: 15px;
+  padding: 25px;
+  margin-bottom: 20px;
+  transition: all 0.3s;
+}
+.question-card:hover { border-color: #667eea; box-shadow: 0 4px 15px rgba(102,126,234,0.15); }
+.question-number {
+  display: inline-block;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  margin-bottom: 12px;
+}
+.question-text {
+  font-size: 1.05rem;
+  line-height: 1.6;
+  margin-bottom: 18px;
+  color: #212529;
+}
+.options { display: flex; flex-direction: column; gap: 10px; }
+.option {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background: #f8f9fa;
+  border: 2px solid #e9ecef;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.95rem;
+}
+.option:hover { background: #e7f1ff; border-color: #667eea; }
+.option input { margin-right: 12px; cursor: pointer; transform: scale(1.2); }
+.option.selected { background: #d4edda; border-color: #28a745; }
+.option.correct { background: #d4edda; border-color: #28a745; color: #155724; font-weight: 600; }
+.option.wrong { background: #f8d7da; border-color: #dc3545; color: #721c24; }
+.nav-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.btn {
+  padding: 12px 28px;
+  border: none;
+  border-radius: 25px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(102,126,234,0.4); }
+.btn-success { background: linear-gradient(135deg, #28a745, #20c997); color: #fff; }
+.btn-success:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(40,167,69,0.4); }
+.btn-secondary { background: #6c757d; color: #fff; }
+.btn-secondary:hover { background: #5a6268; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.question-nav {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(45px, 1fr));
+  gap: 8px;
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 10px;
+}
+.q-nav-btn {
+  aspect-ratio: 1;
+  border: 2px solid #e9ecef;
+  background: #fff;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+.q-nav-btn:hover { transform: scale(1.05); }
+.q-nav-btn.answered { background: #28a745; color: #fff; border-color: #28a745; }
+.q-nav-btn.current { background: #667eea; color: #fff; border-color: #667eea; }
+.q-nav-btn.flagged { background: #ffc107; color: #000; border-color: #ffc107; }
+.result-box {
+  text-align: center;
+  padding: 30px;
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  border-radius: 15px;
+  margin-bottom: 20px;
+}
+.score-circle {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  background: conic-gradient(#28a745 var(--p), #e9ecef 0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  position: relative;
+}
+.score-inner {
+  width: 130px;
+  height: 130px;
+  background: #fff;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.score-value { font-size: 2.5rem; font-weight: bold; color: #28a745; }
+.score-label { font-size: 0.9rem; color: #6c757d; }
+.result-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 15px;
+  margin-top: 20px;
+}
+.stat-card {
+  background: #fff;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.stat-value { font-size: 1.8rem; font-weight: bold; }
+.stat-label { font-size: 0.85rem; color: #6c757d; }
+.stat-card.correct .stat-value { color: #28a745; }
+.stat-card.wrong .stat-value { color: #dc3545; }
+.stat-card.empty .stat-value { color: #6c757d; }
+.start-screen {
+  text-align: center;
+  padding: 40px 30px;
+}
+.start-screen h2 {
+  font-size: 1.8rem;
+  margin-bottom: 15px;
+  color: #1e3c72;
+}
+.start-screen p { margin-bottom: 10px; color: #495057; line-height: 1.6; }
+.start-info {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 10px;
+  margin: 20px 0;
+  text-align: left;
+}
+.start-info li { margin: 8px 0; margin-left: 20px; }
+.input-group {
+  margin: 20px 0;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.input-group input {
+  padding: 12px 18px;
+  border: 2px solid #e9ecef;
+  border-radius: 25px;
+  font-size: 1rem;
+  width: 280px;
+  outline: none;
+}
+.input-group input:focus { border-color: #667eea; }
+.feedback {
+  margin-top: 10px;
+  padding: 10px 15px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+.feedback.correct-fb { background: #d4edda; color: #155724; border-left: 4px solid #28a745; }
+.feedback.wrong-fb { background: #f8d7da; color: #721c24; border-left: 4px solid #dc3545; }
+@media (max-width: 600px) {
+  .header h1 { font-size: 1.2rem; }
+  .content { padding: 15px; }
+  .question-card { padding: 18px; }
+  .btn { padding: 10px 20px; font-size: 0.9rem; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>📚 ASESMEN SEMESTER GANJIL - INFORMATIKA</h1>
+    <p>SMK Negeri 1 Lintau Buo | TP 2026/2027 | Kelas X Teknik Otomotif</p>
+  </div>
+  <div id="app"></div>
+</div>
+
+<script>
+const questions = [
+  // 25 SOAL DARI DOKUMEN
+  {q:"Pada Microsoft Word, agar Daftar Isi (Table of Contents) dapat dibuat secara otomatis, judul bab dan subbab harus diberi format ...",
+   opts:["Huruf tebal (bold) dan ukuran besar","Heading (Styles) sesuai tingkatannya","Garis bawah (underline)","Nomor urut yang diketik manual","Footnote pada setiap judul"], ans:1},
+  {q:"Fitur Microsoft Word yang digunakan untuk membuat surat undangan dengan isi yang sama tetapi nama penerima berbeda-beda secara otomatis dari sebuah daftar data adalah ...",
+   opts:["Track Changes","Smart Lookup","Cross-reference","Mail Merge","Word Count"], ans:3},
+  {q:"Untuk menyisipkan nomor halaman pada dokumen Word, menu yang digunakan adalah ...",
+   opts:["Insert → Page Number","Home → Numbering","Layout → Breaks","References → Citation","View → Ruler"], ans:0},
+  {q:"Seorang siswa ingin mengubah halaman dokumen Word dari posisi tegak (portrait) menjadi posisi mendatar (landscape). Menu yang tepat adalah ...",
+   opts:["Layout → Margins","Insert → Shapes","Layout → Orientation","Home → Paragraph","Review → Language"], ans:2},
+  {q:"Fitur Word yang mencatat setiap perubahan isi dokumen oleh penyunting sehingga perubahan tersebut dapat diterima atau ditolak adalah ...",
+   opts:["AutoCorrect","Format Painter","Page Border","Mail Merge","Track Changes (tab Review)"], ans:4},
+  {q:"Tahapan kerja mesin pencari ketika program otomatis (bot/spider) menjelajahi dan mengumpulkan halaman-halaman web disebut ...",
+   opts:["Crawling","Indexing","Ranking","Hosting","Streaming"], ans:0},
+  {q:"Agar mesin pencari menampilkan hasil yang memuat frasa persis \"dampak media sosial\" secara utuh, penulisan kata kunci yang tepat adalah ...",
+   opts:["dampak + media + sosial","dampak OR media OR sosial","\"dampak media sosial\" (diapit tanda petik)","-dampak media sosial","site:dampak media sosial"], ans:2},
+  {q:"Perintah pencarian site:bps.go.id jumlah penduduk bertujuan untuk ...",
+   opts:["mencari kata bps di seluruh situs web","mengecualikan situs bps.go.id dari hasil pencarian","mencari file berformat .go.id","menampilkan hanya gambar tentang jumlah penduduk","menampilkan hasil tentang jumlah penduduk hanya dari situs bps.go.id"], ans:4},
+  {q:"Siswa mencari informasi tentang hewan \"jaguar\", tetapi tidak ingin muncul hasil tentang mobil. Kata kunci yang tepat adalah ...",
+   opts:["jaguar +mobil","jaguar -mobil","\"jaguar mobil\"","jaguar filetype:mobil","jaguar site:mobil"], ans:1},
+  {q:"Yang dimaksud dengan ekosistem fakta adalah ...",
+   opts:["kumpulan situs web yang hanya berisi berita hiburan","aplikasi khusus untuk menyimpan data pribadi","kegiatan membagikan informasi secepat mungkin tanpa memeriksa kebenarannya","lingkungan informasi yang melibatkan banyak pihak, seperti jurnalis, pemeriksa fakta, platform digital, dan masyarakat, untuk menjaga informasi tetap akurat","jaringan komputer di dalam satu sekolah"], ans:3},
+  {q:"Komunitas di Indonesia yang aktif memverifikasi dan membantah hoaks melalui situs turnbackhoax.id adalah ...",
+   opts:["Badan Pusat Statistik (BPS)","Otoritas Jasa Keuangan (OJK)","Mafindo (Masyarakat Anti Fitnah Indonesia)","Badan Standardisasi Nasional (BSN)","Badan Meteorologi, Klimatologi, dan Geofisika (BMKG)"], ans:2},
+  {q:"Informasi yang salah dan sengaja dibuat atau disebarkan untuk menipu atau merugikan pihak tertentu disebut ...",
+   opts:["Disinformasi","Misinformasi","Infografis","Klarifikasi","Verifikasi"], ans:0},
+  {q:"Membaca lateral (lateral reading) adalah strategi menilai kredibilitas informasi dengan cara ...",
+   opts:["membaca artikel dari awal sampai akhir dengan teliti pada satu situs saja","membaca judul dan paragraf pertama saja","membaca halaman secara berurutan dari atas ke bawah","menilai kredibilitas dari tampilan dan desain situs","membuka sumber-sumber lain di tab baru untuk memeriksa siapa penulis dan bagaimana reputasi sumber tersebut"], ans:4},
+  {q:"Kamu menemukan artikel pada situs yang belum dikenal dan mengklaim sebuah temuan ilmiah. Langkah pertama yang sesuai dengan prinsip membaca lateral adalah ...",
+   opts:["membaca bagian \"Tentang Kami\" saja lalu menganggapnya benar","meninggalkan situs tersebut sejenak dan mencari informasi tentang pengelola situs melalui sumber lain","menghitung jumlah iklan yang tampil pada situs","membagikan artikel ke teman agar mereka ikut menilai","memeriksa jumlah \"like\" pada artikel tersebut"], ans:1},
+  {q:"Sebuah pesan berantai menyebutkan bahwa air rebusan daun tertentu dapat menyembuhkan semua penyakit dalam sehari. Tindakan paling tepat sesuai prinsip membaca lateral adalah ...",
+   opts:["meneruskan pesan ke grup agar bermanfaat bagi orang lain","mempercayainya karena sudah banyak yang membagikan","mempercayainya karena pengirimnya adalah orang dekat","mencari klaim tersebut pada situs cek fakta dan sumber kesehatan resmi, lalu membandingkan hasilnya","membaca ulang pesan berkali-kali untuk mencari kejanggalan bahasanya"], ans:3},
+  {q:"Rumus untuk menjumlahkan seluruh isi sel A1 sampai A10 pada Microsoft Excel adalah ...",
+   opts:["=COUNT(A1:A10)","=SUM(A1:A10)","=AVERAGE(A1:A10)","=TOTAL(A1:A10)","=MAX(A1:A10)"], ans:1},
+  {q:"Fungsi yang digunakan untuk menghitung nilai rata-rata dari sel B2 sampai B8 adalah ...",
+   opts:["=MEAN(B2:B8)","=AVG(B2:B8)","=SUM(B2:B8)","=COUNT(B2:B8)","=AVERAGE(B2:B8)"], ans:4},
+  {q:"Rumus untuk mencari nilai tertinggi dari data pada sel C2 sampai C30 adalah ...",
+   opts:["=MAX(C2:C30)","=MIN(C2:C30)","=TOP(C2:C30)","=COUNT(C2:C30)","=HIGH(C2:C30)"], ans:0},
+  {q:"Perhatikan rumus berikut: =IF(B2>=75;\"Tuntas\";\"Remedial\"). Jika sel B2 berisi angka 80, hasil yang ditampilkan adalah ...",
+   opts:["Remedial","80","Tuntas","TRUE","#VALUE!"], ans:2},
+  {q:"Rumus =COUNTIF(D2:D20;\"Hadir\") digunakan untuk ...",
+   opts:["menjumlahkan angka pada sel yang berisi kata Hadir","menghitung semua sel yang terisi pada D2:D20","mencari kata Hadir lalu menggantinya dengan kata lain","menghitung banyaknya sel pada D2:D20 yang berisi kata Hadir","menampilkan kata Hadir pada seluruh sel D2:D20"], ans:3},
+  {q:"Agar alamat sel B1 tidak berubah ketika rumus disalin ke sel lain (referensi absolut), penulisan yang benar adalah ...",
+   opts:["B1","$B$1","B$1","$B1","&B&1"], ans:1},
+  {q:"Pada rumus =VLOOKUP(A2;F2:H10;3;FALSE), angka 3 menunjukkan ...",
+   opts:["jumlah baris yang dicari","nilai yang dijadikan kunci pencarian","jumlah data yang akan dihitung","nomor baris ke-3 pada tabel F2:H10","nomor kolom ke-3 pada tabel F2:H10 yang nilainya akan diambil"], ans:4},
+  {q:"Sel A1 berisi 2, A2 berisi 3, dan A3 berisi 5. Hasil dari rumus =SUM(A1:A3)*2 adalah ...",
+   opts:["10","15","20","30","40"], ans:2},
+  {q:"Jenis grafik yang paling tepat untuk menunjukkan perbandingan persentase bagian terhadap keseluruhan, misalnya persentase jumlah siswa tiap jurusan, adalah ...",
+   opts:["Pie Chart (grafik lingkaran)","Line Chart (grafik garis)","Scatter Chart (grafik sebar)","Stock Chart","Radar Chart"], ans:0},
+  {q:"Fitur Excel yang digunakan untuk menampilkan hanya baris data yang memenuhi kriteria tertentu, misalnya hanya siswa kelas X TKJ, adalah ...",
+   opts:["Sort","Freeze Panes","Merge & Center","Filter","Format Painter"], ans:3},
+  // 10 SOAL TAMBAHAN
+  {q:"Fitur Microsoft Word yang digunakan untuk membuat catatan kaki di bagian bawah halaman adalah ...",
+   opts:["Endnote","Footnote","Caption","Cross-reference","Citation"], ans:1},
+  {q:"Dalam Microsoft Excel, simbol yang wajib digunakan di awal setiap rumus atau fungsi adalah ...",
+   opts:["#","@","=","&","%"], ans:2},
+  {q:"Operator logika yang digunakan pada fungsi IF di Excel untuk menyatakan kondisi \"lebih besar atau sama dengan\" adalah ...",
+   opts:[">","<",">=","=<","<>"], ans:2},
+  {q:"Fungsi Excel yang digunakan untuk mencari nilai terendah dari suatu rentang data adalah ...",
+   opts:["=LOW()","=MIN()","=SMALL()","=BOTTOM()","=LEAST()"], ans:1},
+  {q:"Pada mesin pencari Google, operator filetype:pdf digunakan untuk ...",
+   opts:["mencari situs yang berekstensi .pdf","mencari hanya file berformat PDF","menghapus file PDF dari hasil pencarian","membuka file PDF di browser","menyimpan hasil pencarian ke PDF"], ans:1},
+  {q:"Informasi yang sebenarnya salah, tetapi disebarluarkan oleh seseorang yang mengira informasi itu benar disebut ...",
+   opts:["Disinformasi","Misinformasi","Hoaks","Fitnah","Propaganda"], ans:1},
+  {q:"Langkah pertama yang paling tepat dilakukan ketika menerima pesan berantai yang mencurigakan di WhatsApp adalah ...",
+   opts:["langsung meneruskannya ke grup keluarga","menghapusnya tanpa dibaca","memeriksa kebenarannya melalui situs cek fakta atau sumber resmi","mempercayainya karena dikirim orang yang dikenal","menyimpannya sebagai bukti"], ans:2},
+  {q:"Pada Microsoft Excel, fungsi =COUNT(A1:A10) digunakan untuk ...",
+   opts:["menjumlahkan seluruh isi sel A1 sampai A10","menghitung banyaknya sel yang berisi angka pada rentang A1:A10","mencari nilai rata-rata pada A1:A10","mencari nilai maksimum pada A1:A10","menghitung banyaknya sel kosong pada A1:A10"], ans:1},
+  {q:"Fitur Microsoft Word yang memungkinkan pengguna membuat surat massal dengan menggabungkan dokumen utama dan sumber data disebut ...",
+   opts:["Macro","Mail Merge","Template","Watermark","SmartArt"], ans:1},
+  {q:"Pada Excel, jika sel A1 berisi angka 10 dan rumus pada sel B1 adalah =A1*2+5, maka hasil pada B1 adalah ...",
+   opts:["15","20","25","30","35"], ans:2}
+];
+
+let state = {
+  current: 0,
+  answers: new Array(questions.length).fill(null),
+  flagged: new Set(),
+  started: false,
+  finished: false,
+  timeLeft: 45 * 60,
+  timerId: null,
+  studentName: ""
+};
+
+const app = document.getElementById('app');
+
+function renderStart() {
+  app.innerHTML = `
+    <div class="start-screen">
+      <h2>🎓 Selamat Datang di Quiz Online</h2>
+      <p>Asesmen Semester Ganjil Mata Pelajaran <b>Informatika</b></p>
+      <div class="start-info">
+        <b>Petunjuk Pengerjaan:</b>
+        <ul>
+          <li>Quiz terdiri dari <b>35 soal pilihan ganda</b></li>
+          <li>Waktu pengerjaan: <b>45 menit</b></li>
+          <li>Setiap soal bernilai <b>4 poin</b> (total maksimal 140)</li>
+          <li>Gunakan tombol <b>Navigasi</b> untuk berpindah soal</li>
+          <li>Tandai soal dengan <b>bendera 🚩</b> untuk ditinjau ulang</li>
+          <li>Klik <b>Kumpulkan</b> jika sudah selesai</li>
+        </ul>
+      </div>
+      <div class="input-group">
+        <input type="text" id="studentName" placeholder="Masukkan Nama Lengkap..." />
+      </div>
+      <button class="btn btn-primary" onclick="startQuiz()">🚀 Mulai Quiz</button>
+    </div>
+  `;
+}
+
+function startQuiz() {
+  const name = document.getElementById('studentName').value.trim();
+  if (!name) { alert("Silakan isi nama lengkap terlebih dahulu!"); return; }
+  state.studentName = name;
+  state.started = true;
+  state.timeLeft = 45 * 60;
+  state.timerId = setInterval(updateTimer, 1000);
+  renderQuiz();
+}
+
+function updateTimer() {
+  state.timeLeft--;
+  const m = Math.floor(state.timeLeft / 60);
+  const s = state.timeLeft % 60;
+  const timerEl = document.getElementById('timer');
+  if (timerEl) {
+    timerEl.textContent = `⏱️ ${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    if (state.timeLeft <= 300) timerEl.style.color = '#dc3545';
+  }
+  if (state.timeLeft <= 0) {
+    clearInterval(state.timerId);
+    alert("⏰ Waktu habis! Jawaban akan dikumpulkan otomatis.");
+    finishQuiz();
+  }
+}
+
+function renderQuiz() {
+  const q = questions[state.current];
+  const answered = state.answers.filter(a => a !== null).length;
+  const progress = (answered / questions.length) * 100;
+  
+  let navHtml = '';
+  for (let i = 0; i < questions.length; i++) {
+    let cls = 'q-nav-btn';
+    if (i === state.current) cls += ' current';
+    else if (state.answers[i] !== null) cls += ' answered';
+    if (state.flagged.has(i)) cls += ' flagged';
+    navHtml += `<button class="${cls}" onclick="goTo(${i})">${i+1}</button>`;
+  }
+
+  let optsHtml = '';
+  q.opts.forEach((opt, i) => {
+    const sel = state.answers[state.current] === i ? 'selected' : '';
+    optsHtml += `
+      <label class="option ${sel}" onclick="selectOption(${i})">
+        <input type="radio" name="q${state.current}" ${state.answers[state.current]===i?'checked':''}>
+        <span><b>${String.fromCharCode(65+i)}.</b> ${opt}</span>
+      </label>
+    `;
+  });
+
+  const isFlagged = state.flagged.has(state.current);
+
+  app.innerHTML = `
+    <div class="info-bar">
+      <div><b>👤 ${state.studentName}</b></div>
+      <div class="timer" id="timer">⏱️ 45:00</div>
+      <div class="progress-info">Dijawab: ${answered}/${questions.length}</div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
+    <div class="content">
+      <div class="question-nav">${navHtml}</div>
+      <div class="question-card">
+        <span class="question-number">Soal ${state.current + 1} dari ${questions.length}</span>
+        <div class="question-text">${q.q}</div>
+        <div class="options">${optsHtml}</div>
+      </div>
+      <div class="nav-buttons">
+        <button class="btn btn-secondary" onclick="prevQ()" ${state.current===0?'disabled':''}>← Sebelumnya</button>
+        <button class="btn btn-secondary" onclick="toggleFlag()" style="background:${isFlagged?'#ffc107':'#6c757d'}">
+          ${isFlagged?'🚩 Ditandai':'🏳️ Tandai'}
+        </button>
+        ${state.current === questions.length - 1 
+          ? `<button class="btn btn-success" onclick="confirmSubmit()">✓ Kumpulkan</button>`
+          : `<button class="btn btn-primary" onclick="nextQ()">Selanjutnya →</button>`}
+      </div>
+      <div style="text-align:center; margin-top:15px;">
+        <button class="btn btn-success" onclick="confirmSubmit()">✓ Kumpulkan Jawaban</button>
+      </div>
+    </div>
+  `;
+  updateTimerDisplay();
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(state.timeLeft / 60);
+  const s = state.timeLeft % 60;
+  const timerEl = document.getElementById('timer');
+  if (timerEl) {
+    timerEl.textContent = `⏱️ ${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    if (state.timeLeft <= 300) timerEl.style.color = '#dc3545';
+  }
+}
+
+function selectOption(i) {
+  state.answers[state.current] = i;
+  renderQuiz();
+}
+
+function nextQ() { if (state.current < questions.length - 1) { state.current++; renderQuiz(); } }
+function prevQ() { if (state.current > 0) { state.current--; renderQuiz(); } }
+function goTo(i) { state.current = i; renderQuiz(); }
+function toggleFlag() {
+  if (state.flagged.has(state.current)) state.flagged.delete(state.current);
+  else state.flagged.add(state.current);
+  renderQuiz();
+}
+
+function confirmSubmit() {
+  const unanswered = state.answers.filter(a => a === null).length;
+  let msg = "Apakah Anda yakin ingin mengumpulkan jawaban?";
+  if (unanswered > 0) msg += `\n\n⚠️ Masih ada ${unanswered} soal yang belum dijawab!`;
+  if (confirm(msg)) finishQuiz();
+}
+
+function finishQuiz() {
+  clearInterval(state.timerId);
+  state.finished = true;
+  let correct = 0, wrong = 0, empty = 0;
+  state.answers.forEach((a, i) => {
+    if (a === null) empty++;
+    else if (a === questions[i].ans) correct++;
+    else wrong++;
+  });
+  const score = correct * 4;
+  const maxScore = questions.length * 4;
+  const percent = Math.round((score / maxScore) * 100);
+  
+  let reviewHtml = '';
+  questions.forEach((q, i) => {
+    const userAns = state.answers[i];
+    const isCorrect = userAns === q.ans;
+    const status = userAns === null ? 'empty' : (isCorrect ? 'correct' : 'wrong');
+    
+    let optsReview = '';
+    q.opts.forEach((opt, j) => {
+      let cls = 'option';
+      if (j === q.ans) cls += ' correct';
+      else if (j === userAns && !isCorrect) cls += ' wrong';
+      optsReview += `<div class="${cls}"><b>${String.fromCharCode(65+j)}.</b> ${opt}${j===q.ans?' ✓':''}${j===userAns && !isCorrect?' ✗':''}</div>`;
+    });
+    
+    let feedback = '';
+    if (userAns === null) feedback = '<div class="feedback wrong-fb">⚠️ Tidak dijawab</div>';
+    else if (isCorrect) feedback = '<div class="feedback correct-fb">✓ Jawaban Anda benar!</div>';
+    else feedback = `<div class="feedback wrong-fb">✗ Jawaban Anda salah. Jawaban benar: <b>${String.fromCharCode(65+q.ans)}</b></div>`;
+    
+    reviewHtml += `
+      <div class="question-card" style="border-left: 5px solid ${status==='correct'?'#28a745':status==='wrong'?'#dc3545':'#6c757d'}">
+        <span class="question-number">Soal ${i+1}</span>
+        <div class="question-text">${q.q}</div>
+        <div class="options">${optsReview}</div>
+        ${feedback}
+      </div>
+    `;
+  });
+
+  app.innerHTML = `
+    <div class="content">
+      <div class="result-box">
+        <h2 style="color:#1e3c72; margin-bottom:10px;">🎉 Hasil Quiz</h2>
+        <p style="color:#6c757d;">${state.studentName}</p>
+        <div class="score-circle" style="--p:${percent}%">
+          <div class="score-inner">
+            <div class="score-value">${score}</div>
+            <div class="score-label">dari ${maxScore}</div>
+          </div>
+        </div>
+        <p style="font-size:1.2rem; font-weight:bold; color:${percent>=75?'#28a745':percent>=60?'#ffc107':'#dc3545'}">
+          ${percent >= 85 ? '🏆 Luar Biasa!' : percent >= 75 ? '⭐ Sangat Baik!' : percent >= 60 ? '👍 Baik' : percent >= 50 ? '📚 Cukup, Terus Belajar!' : '💪 Perlu Belajar Lagi!'}
+        </p>
+        <div class="result-stats">
+          <div class="stat-card correct"><div class="stat-value">${correct}</div><div class="stat-label">✓ Benar</div></div>
+          <div class="stat-card wrong"><div class="stat-value">${wrong}</div><div class="stat-label">✗ Salah</div></div>
+          <div class="stat-card empty"><div class="stat-value">${empty}</div><div class="stat-label">⚠️ Kosong</div></div>
+          <div class="stat-card"><div class="stat-value" style="color:#667eea">${percent}%</div><div class="stat-label">Persentase</div></div>
+        </div>
+      </div>
+      <h3 style="margin:20px 0 15px; color:#1e3c72;">📋 Pembahasan Lengkap</h3>
+      ${reviewHtml}
+      <div style="text-align:center; margin-top:20px;">
+        <button class="btn btn-primary" onclick="location.reload()">🔄 Ulangi Quiz</button>
+      </div>
+    </div>
+  `;
+  window.scrollTo(0,0);
+}
+
+renderStart();
+</script>
+</body>
+</html>
