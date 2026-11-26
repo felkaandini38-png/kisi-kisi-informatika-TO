@@ -213,6 +213,16 @@ body {
   text-align: left;
 }
 .start-info li { margin: 8px 0; margin-left: 20px; }
+.shuffle-info {
+  background: linear-gradient(135deg, #fff3cd, #ffe69c);
+  border-left: 5px solid #ffc107;
+  padding: 15px 20px;
+  border-radius: 10px;
+  margin: 20px 0;
+  text-align: left;
+  color: #856404;
+}
+.shuffle-info b { color: #664d03; }
 .input-group {
   margin: 20px 0;
   display: flex;
@@ -256,7 +266,8 @@ body {
 </div>
 
 <script>
-const questions = [
+// ===================== BANK SOAL =====================
+const allQuestions = [
   // 25 SOAL DARI DOKUMEN
   {q:"Pada Microsoft Word, agar Daftar Isi (Table of Contents) dapat dibuat secara otomatis, judul bab dan subbab harus diberi format ...",
    opts:["Huruf tebal (bold) dan ukuran besar","Heading (Styles) sesuai tingkatannya","Garis bawah (underline)","Nomor urut yang diketik manual","Footnote pada setiap judul"], ans:1},
@@ -331,6 +342,21 @@ const questions = [
    opts:["15","20","25","30","35"], ans:2}
 ];
 
+// ===================== FUNGSI PENGACAKAN (SHUFFLE) =====================
+// Algoritma Fisher-Yates Shuffle - mengacak array secara acak
+function shuffleArray(array) {
+  const shuffled = [...array]; // clone array agar tidak mengubah aslinya
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
+// ===================== ACACAK SOAL SAAT HALAMAN DIBUKA =====================
+// Setiap kali halaman di-refresh/dibuka, urutan soal akan berbeda
+let questions = shuffleArray(allQuestions);
+
 let state = {
   current: 0,
   answers: new Array(questions.length).fill(null),
@@ -339,7 +365,8 @@ let state = {
   finished: false,
   timeLeft: 45 * 60,
   timerId: null,
-  studentName: ""
+  studentName: "",
+  shuffleSeed: Date.now() // ID unik untuk sesi ini
 };
 
 const app = document.getElementById('app');
@@ -349,10 +376,17 @@ function renderStart() {
     <div class="start-screen">
       <h2>🎓 Kisi-Kisi Ujian Informatika Teknik Otomotif</h2>
       <p>Latihan Soal Semester Ganjil Mata Pelajaran <b>Informatika</b></p>
+      
+      <div class="shuffle-info">
+        <b>🔀 PENGACAKAN SOAL AKTIF</b><br>
+        Urutan soal akan diacak secara otomatis setiap kali halaman dibuka. 
+        Setiap siswa akan mendapatkan urutan soal yang berbeda.
+      </div>
+      
       <div class="start-info">
         <b>Petunjuk Pengerjaan:</b>
         <ul>
-          <li>Quiz terdiri dari <b>35 soal pilihan ganda</b></li>
+          <li>Quiz terdiri dari <b>35 soal pilihan ganda</b> (diacak)</li>
           <li>Waktu pengerjaan: <b>45 menit</b></li>
           <li>Setiap soal bernilai <b>4 poin</b> (total maksimal 140)</li>
           <li>Gunakan tombol <b>Navigasi</b> untuk berpindah soal</li>
@@ -431,7 +465,7 @@ function renderQuiz() {
     <div class="content">
       <div class="question-nav">${navHtml}</div>
       <div class="question-card">
-        <span class="question-number">Soal ${state.current + 1} dari ${questions.length}</span>
+        <span class="question-number">Soal ${state.current + 1} dari ${questions.length} 🔀</span>
         <div class="question-text">${q.q}</div>
         <div class="options">${optsHtml}</div>
       </div>
@@ -549,7 +583,7 @@ function finishQuiz() {
       <h3 style="margin:20px 0 15px; color:#1e3c72;">📋 Pembahasan Lengkap</h3>
       ${reviewHtml}
       <div style="text-align:center; margin-top:20px;">
-        <button class="btn btn-primary" onclick="location.reload()">🔄 Ulangi Quiz</button>
+        <button class="btn btn-primary" onclick="location.reload()">🔄 Ulangi Quiz (Soal Akan Diacak Lagi)</button>
       </div>
     </div>
   `;
